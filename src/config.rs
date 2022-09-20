@@ -3,7 +3,8 @@ pub struct Config {
     pub dead_ants: usize,
     pub max_iter: usize,
     pub ants: usize,
-    pub radius: usize,
+    pub radius: i32,
+    pub border_size: f32,
 }
 
 impl Config {
@@ -11,7 +12,8 @@ impl Config {
         dead_ants: usize,
         max_iter: usize,
         ants: usize,
-        radius: usize,
+        radius: i32,
+        border_size: f32,
     ) -> Self {
 
         Self {
@@ -19,6 +21,7 @@ impl Config {
             max_iter,
             ants,
             radius,
+            border_size,
         }
     }
 }
