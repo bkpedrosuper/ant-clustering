@@ -144,7 +144,7 @@ pub fn move_agent(
 
 }
 
-pub fn set_visibility(mut query: Query<(&mut Visibility)>) {
+pub fn set_visibility(mut query: Query<&mut Visibility>) {
     for mut visibility in query.iter_mut() {
         visibility.is_visible = true;
     }
