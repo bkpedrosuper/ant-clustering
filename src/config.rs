@@ -5,6 +5,7 @@ pub struct Config {
     pub ants: usize,
     pub radius: i32,
     pub border_size: f32,
+    pub iter_per_mut: usize,
 }
 
 impl Config {
@@ -14,6 +15,7 @@ impl Config {
         ants: usize,
         radius: i32,
         border_size: f32,
+        iter_per_mut: usize,
     ) -> Self {
 
         Self {
@@ -22,6 +24,7 @@ impl Config {
             ants,
             radius,
             border_size,
+            iter_per_mut,
         }
     }
 }

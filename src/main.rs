@@ -6,8 +6,8 @@ use ant_clustering::ant::{*};
 
 
 fn main() {
-    let params: Config = Config { dead_ants: 100, max_iter: 10, ants: 15, radius: 1, border_size: 2.,};
-    let board: Board = Board::new(20, 20);
+    let params: Config = Config { dead_ants: 5, max_iter: 10, ants: 100, radius: 1, border_size: 2., iter_per_mut: 50};
+    let board: Board = Board::new(90, 90);
 
     App::new()
         .insert_resource(WindowDescriptor {
@@ -28,10 +28,10 @@ fn main() {
         .add_startup_system(setup_camera)
         .add_startup_system(setup_dead_ants)
         .add_startup_system(setup_ants)
-        // .add_system(move_agent)
+        .add_system(move_agent)
         .add_system(draw_ants)
         .add_system(color_cells)
-        .add_system(set_visibility)
+        // .add_system(set_visibility)
         .run()
         ;
 

@@ -1,6 +1,7 @@
 use crate::{board::Board, config::Config, cell::Cell};
 use rand::{distributions::Uniform, prelude::Distribution, Rng};
 use bevy::prelude::*;
+use rand::seq::SliceRandom;
 
 #[derive(Debug, Clone, Component, Default)]
 pub struct Ant {
@@ -91,6 +92,63 @@ pub fn draw_ants(asset_server: Res<AssetServer>, mut query: Query<(&Ant, &mut Ha
     }
 }
 
+fn get_score(
+    board: &Res<Board>,
+    ax: i32,
+    ay: i32,
+    radius: i32,
+    query_cell: &Query<&mut Cell>,
+) -> f32 {
+    let width = board.width as i32;
+    let height = board.height as i32;
+    let mut tot = 0;
+    let mut food_nearby = 0;
+    for x in ax - radius..=ax + radius {
+        for y in ay - radius..=ay + radius {
+            if x >= 0 && x < width && (x != ax || y != ay) && y >= 0 && y < height
+            {
+                tot += 1;
+                let cell = query_cell.get(board.content[x as usize][y as usize]).unwrap();
+                if cell.has_dead_ant {
+                    food_nearby += 1;
+                }
+            }
+        }
+    }
+
+    food_nearby as f32 / tot as f32
+}
+
+fn agent_action(agent: &mut Mut<Ant>, score: f32, board: &Res<Board>, query_cell: &mut Query<&mut Cell>,) {
+    let factor = 1.5;
+    let prob = (score * factor).min(1.0);
+    let mut rng = rand::thread_rng();
+
+    let random_value: f32 = rng.gen();
+
+    let mut cell = query_cell.get_mut(board.content[agent.x][agent.y]).unwrap();
+
+    if agent.carrying {
+        // drop the food
+        if random_value < prob {
+            if !cell.has_dead_ant {
+                agent.carrying = false;
+                cell.has_dead_ant = true;
+            }
+        }
+    }
+    else {
+        // pick the food
+        if random_value < (1.0 - prob) {
+            if cell.has_dead_ant {
+                agent.carrying = true;
+                cell.has_dead_ant = false;
+            }
+        }
+    }
+
+}
+
 pub fn move_agent(
     windows: Res<Windows>,
     board: Res<Board>,
@@ -104,33 +162,56 @@ pub fn move_agent(
         (window.width() - config.border_size * (board.width - 1) as f32) / (board.width as f32);
     let cell_height =
         (window.height() - config.border_size * (board.height - 1) as f32) / (board.height as f32);
+
+    for _ in 0..config.iter_per_mut {
+
+        for (mut agent, _) in query.iter_mut() {
     
-    for (mut agent, _) in query.iter_mut() {
-
-        loop {
-            let x_move: i32 = rand::thread_rng().gen_range(-1..1);
-            let y_move: i32 = rand::thread_rng().gen_range(-1..1);
-
+            let score: f32 = get_score(&board, agent.x as i32, agent.y as i32, config.radius, &query_cell).try_into().unwrap();
             
-            if !(x_move == 0 && y_move == 0) {
-                println!("AQUI?");
-                let new_x = agent.x + x_move as usize;
-                let new_y = agent.y + y_move as usize;
-
-
+            agent_action(&mut agent, score, &board, &mut query_cell);
+    
+            loop {
+                let mut moves_available: Vec<(usize, usize)> = Vec::new();
+    
+                // pode ir pra direita
+                if agent.x < board.width -1 {
+                    moves_available.push((agent.x + 1, agent.y));
+                }
+    
+                // pode ir pra esquerda
+                if agent.x > 0 {
+                    moves_available.push((agent.x - 1, agent.y));
+                }
+    
+                // pode ir pra cima
+                if agent.y < board.height -1 {
+                    moves_available.push((agent.x, agent.y + 1));
+                }
+    
+                // pode ir pra baixo
+                if agent.y > 0 {
+                    moves_available.push((agent.x, agent.y - 1));
+                }
+    
+                
+                let movement= moves_available.choose(&mut rand::thread_rng()).expect("erro");
+    
+                let new_x = movement.0;
+                let new_y = movement.1;
+    
                 if new_x < board.width && new_y < board.height {
-
                     let mut cell = query_cell.get_mut(board.content[new_x][new_y]).unwrap();
                     cell.n_ants += 1;
                     agent.x = new_x;
                     agent.y = new_y;
                     break;
                 }
-
+                
             }
-            
         }
     }
+    
 
     for (agent, mut transform) in query.iter_mut() {
         let x = agent.x as f32;
@@ -144,8 +225,8 @@ pub fn move_agent(
 
 }
 
-pub fn set_visibility(mut query: Query<&mut Visibility>) {
-    for mut visibility in query.iter_mut() {
-        visibility.is_visible = true;
+pub fn set_visibility(mut query: Query<(&mut Visibility, &Ant)>) {
+    for (mut visibility, ant) in query.iter_mut() {
+        visibility.is_visible = ant.carrying;
     }
 }
