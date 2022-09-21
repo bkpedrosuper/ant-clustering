@@ -1,13 +1,14 @@
 use ant_clustering::board::{*};
 use ant_clustering::config::Config;
+// use bevy::diagnostic::{LogDiagnosticsPlugin, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::PresentMode;
 use ant_clustering::ant::{*};
 
 
 fn main() {
-    let params: Config = Config { dead_ants: 5, max_iter: 10, ants: 100, radius: 1, border_size: 2., iter_per_mut: 50};
-    let board: Board = Board::new(90, 90);
+    let params: Config = Config { dead_ants: 1000, max_iter: 10, ants: 100, radius: 1, border_size: 2., iter_per_mut: 100};
+    let board: Board = Board::new(150);
 
     App::new()
         .insert_resource(WindowDescriptor {
@@ -28,26 +29,12 @@ fn main() {
         .add_startup_system(setup_camera)
         .add_startup_system(setup_dead_ants)
         .add_startup_system(setup_ants)
+        .add_system(color_cells)
+        .add_system(draw_agents)
         .add_system(move_agent)
         .add_system(draw_ants)
-        .add_system(color_cells)
         // .add_system(set_visibility)
-        .run()
-        ;
-
-    // // Create ants inside the board
-    // let ants: Vec<Ant> = vec![Ant::new(
-    //     rand::thread_rng().gen_range(0..board.height),
-    //     rand::thread_rng().gen_range(0..board.width),
-    //     1); params.ants];
-
-    // for _ in 0..params.max_iter {
-    //     // for ant in &ants {
-    //     //     ant.moveit(&mut board)
-    //     // }
-    // }
-
-    // board.print_board();
+        .run();
 
 }
 
