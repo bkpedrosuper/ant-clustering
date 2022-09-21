@@ -11,12 +11,12 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn new(width: usize, height: usize) -> Self {
-        let content = vec![vec![Entity::from_raw(0); width]; height];
+    pub fn new(size: usize) -> Self {
+        let content = vec![vec![Entity::from_raw(0); size]; size];
 
         Self {
-            width,
-            height,
+            width: size,
+            height: size,
             content,
         }
     }
@@ -24,7 +24,7 @@ impl Board {
 
 impl Default for Board {
     fn default() -> Self {
-        Self::new(50, 50)
+        Self::new(50)
     }
 }
 
@@ -78,17 +78,10 @@ pub fn setup_dead_ants(board: Res<Board>, mut query: Query<&mut Cell>, params: R
 }
 
 pub fn color_cells(mut query_cell: Query<(&Cell, &mut Sprite), Changed<Cell>>) {
-    let mut cont = 0;
     for (cell, mut sprite) in query_cell.iter_mut() {
         let empty_cell_color: Color = Color::rgb(0.9, 0.45, 0.0);
         let food_cell_color: Color = Color::rgb(0.8, 0.05, 0.0);
-
-        if cell.has_dead_ant {
-            cont+=1;
-        }
         
         sprite.color = if cell.has_dead_ant {food_cell_color} else {empty_cell_color};
     }
-    println!("CONSERTAR ESSA DESGRAÇA");
-    println!("Quantidade de formigas {}", cont);
 }

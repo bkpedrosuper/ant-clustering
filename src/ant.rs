@@ -27,7 +27,6 @@ pub fn setup_ants(
     asset_server: Res<AssetServer>,
     board: Res<Board>,
     windows: Res<Windows>,
-    mut query: Query<&mut Cell>,
     config: Res<Config>,
 ) {
     asset_server.watch_for_changes().unwrap();
@@ -48,36 +47,30 @@ pub fn setup_ants(
             let x = between_width.sample(&mut rng);
             let y = between_height.sample(&mut rng);
 
-            let mut cell = query.get_mut(board.content[x][y]).unwrap();
-
-
-            if !cell.has_dead_ant {
-                cell.has_dead_ant = true;
-                let xx = x as f32;
-                let yy = y as f32;
-                let cx = -window.width() / 2. + cell_width * xx + config.border_size * xx + cell_width / 2.;
-                let cy =
-                    -window.height() / 2. + cell_height * yy + config.border_size * yy + cell_height / 2.;
-                commands
-                    .spawn_bundle(SpriteBundle {
-                        texture: asset_server.load("empty_ant.png"),
-                        transform: Transform::from_xyz(cx, cy, 2.0),
-                        sprite: Sprite {
-                            custom_size: Some(Vec2::new(cell_width, cell_height)),
-                            ..default()
-                        },
+            let xx = x as f32;
+            let yy = y as f32;
+            let cx = -window.width() / 2. + cell_width * xx + config.border_size * xx + cell_width / 2.;
+            let cy =
+                -window.height() / 2. + cell_height * yy + config.border_size * yy + cell_height / 2.;
+            commands
+                .spawn_bundle(SpriteBundle {
+                    texture: asset_server.load("empty_ant.png"),
+                    transform: Transform::from_xyz(cx, cy, 2.0),
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::new(cell_width, cell_height)),
                         ..default()
-                    })
-                    .insert(Ant {
-                        x,
-                        y,
-                        radius: config.radius,
-                        carrying: false,
-                        ..default()
-                    });
+                    },
+                    ..default()
+                })
+                .insert(Ant {
+                    x,
+                    y,
+                    radius: config.radius,
+                    carrying: false,
+                    ..default()
+                });
 
-                break;
-            }
+            break;
         }
     }
 }
@@ -101,13 +94,13 @@ fn get_score(
 ) -> f32 {
     let width = board.width as i32;
     let height = board.height as i32;
-    let mut tot = 0;
+    let mut total_vision = 0;
     let mut food_nearby = 0;
     for x in ax - radius..=ax + radius {
         for y in ay - radius..=ay + radius {
             if x >= 0 && x < width && (x != ax || y != ay) && y >= 0 && y < height
             {
-                tot += 1;
+                total_vision += 1;
                 let cell = query_cell.get(board.content[x as usize][y as usize]).unwrap();
                 if cell.has_dead_ant {
                     food_nearby += 1;
@@ -116,7 +109,7 @@ fn get_score(
         }
     }
 
-    food_nearby as f32 / tot as f32
+    food_nearby as f32 / total_vision as f32
 }
 
 fn agent_action(agent: &mut Mut<Ant>, score: f32, board: &Res<Board>, query_cell: &mut Query<&mut Cell>,) {
@@ -223,6 +216,16 @@ pub fn move_agent(
         translation.y = cy;
     }
 
+}
+
+pub fn draw_agents(asset_server: Res<AssetServer>, mut query: Query<(&Ant, &mut Handle<Image>)>) {
+    for (agent, mut image_handle) in query.iter_mut() {
+        if agent.carrying {
+            *image_handle = asset_server.load("carry_ant.png");
+        } else {
+            *image_handle = asset_server.load("empty_ant.png");
+        }
+    }
 }
 
 pub fn set_visibility(mut query: Query<(&mut Visibility, &Ant)>) {
