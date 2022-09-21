@@ -7,8 +7,8 @@ use ant_clustering::ant::{*};
 
 
 fn main() {
-    let params: Config = Config { dead_ants: 1000, max_iter: 10, ants: 100, radius: 1, border_size: 2., iter_per_mut: 100};
-    let board: Board = Board::new(150);
+    let params: Config = Config { dead_ants: 200, max_iter: 10, ants: 50, radius: 1, border_size: 2., iter_per_mut: 25};
+    let board: Board = Board::new(50);
 
     App::new()
         .insert_resource(WindowDescriptor {
