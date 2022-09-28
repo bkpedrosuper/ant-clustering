@@ -112,11 +112,15 @@ fn get_score(
     food_nearby as f32 / total_vision as f32
 }
 
-fn agent_action(agent: &mut Mut<Ant>, score: f32, board: &Res<Board>, query_cell: &mut Query<&mut Cell>,) {
-    let factor = 1.5;
-    let prob = (score * factor).min(1.0);
-    let mut rng = rand::thread_rng();
+fn probability(score: f32) -> f32 {
+    score * score
+}
 
+fn agent_action(agent: &mut Mut<Ant>, score: f32, board: &Res<Board>, query_cell: &mut Query<&mut Cell>,) {
+    // let factor = 1.5;
+    let prob = probability(score).min(1.0);
+    let mut rng = rand::thread_rng();
+    
     let random_value: f32 = rng.gen();
 
     let mut cell = query_cell.get_mut(board.content[agent.x][agent.y]).unwrap();
@@ -130,6 +134,7 @@ fn agent_action(agent: &mut Mut<Ant>, score: f32, board: &Res<Board>, query_cell
             }
         }
     }
+    // not carrying
     else {
         // pick the food
         if random_value < (1.0 - prob) {
