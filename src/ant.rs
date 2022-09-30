@@ -2,6 +2,7 @@ use crate::{board::Board, config::Config, cell::Cell};
 use rand::{distributions::Uniform, prelude::Distribution, Rng};
 use bevy::prelude::*;
 use rand::seq::SliceRandom;
+use std::f32::consts::E;
 
 #[derive(Debug, Clone, Component, Default)]
 pub struct Ant {
@@ -113,12 +114,16 @@ fn get_score(
 }
 
 fn probability(score: f32) -> f32 {
-    score * score
+    // 1.0 / (1.0 + (-E.powf(5.0 * score)))
+    // let factor = 100. / 80.;
+    // (score * factor).min(1.0)
+    // score * score
+    1.0 / (1.0 + (E.powf(-E.powf(2.5)*(score-0.5))))
 }
 
 fn agent_action(agent: &mut Mut<Ant>, score: f32, board: &Res<Board>, query_cell: &mut Query<&mut Cell>,) {
     // let factor = 1.5;
-    let prob = probability(score).min(1.0);
+    let prob = probability(score);
     let mut rng = rand::thread_rng();
     
     let random_value: f32 = rng.gen();
@@ -152,7 +157,7 @@ pub fn move_agent(
     board: Res<Board>,
     mut query: Query<(&mut Ant, &mut Transform)>,
     mut query_cell: Query<&mut Cell>,
-    config: ResMut<Config>,
+    mut config: ResMut<Config>,
 ) {
     let window = windows.primary();
 
@@ -166,6 +171,10 @@ pub fn move_agent(
         for (mut agent, _) in query.iter_mut() {
     
             let score: f32 = get_score(&board, agent.x as i32, agent.y as i32, config.radius, &query_cell).try_into().unwrap();
+            
+            if config.finished && !agent.carrying {
+                continue;
+            }
             
             agent_action(&mut agent, score, &board, &mut query_cell);
     
@@ -193,7 +202,7 @@ pub fn move_agent(
                 }
     
                 
-                let movement= moves_available.choose(&mut rand::thread_rng()).expect("erro");
+                let movement= moves_available.choose(&mut rand::thread_rng()).expect("error while attempting to move");
     
                 let new_x = movement.0;
                 let new_y = movement.1;
@@ -209,8 +218,13 @@ pub fn move_agent(
             }
         }
     }
-    
 
+    if config.iterations == 0 {
+        config.finished = true;
+    }
+
+    config.iterations = if config.iterations == 0 { 0 } else { config.iterations - 1 }; // command to prevent config (usize to be lesser than zero)
+    
     for (agent, mut transform) in query.iter_mut() {
         let x = agent.x as f32;
         let y = agent.y as f32;

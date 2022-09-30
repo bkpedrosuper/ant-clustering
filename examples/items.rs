@@ -7,8 +7,8 @@ use ant_clustering::ant::{*};
 
 
 fn main() {
-    let params: Config = Config { dead_ants: 500, max_iter: 10, ants: 100, radius: 1, border_size: 2., iter_per_mut: 50};
-    // let params: Config = Config { dead_ants: 200, max_iter: 10, ants: 50, radius: 3, border_size: 2., iter_per_mut: 10000};
+    let params: Config = Config::new(1000, 100000, 10, 1, 2., 200);
+    // let params: Config = Config::new(200, 10, 50, 3, 2., 10000);
     let board: Board = Board::new(50);
 
     App::new()
@@ -21,8 +21,6 @@ fn main() {
             ..default()
         })
         .add_plugins(DefaultPlugins)
-        // .add_plugin(LogDiagnosticsPlugin::default())
-        // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .init_resource::<Board>()
         .insert_resource(board)
         .insert_resource(params)
@@ -34,7 +32,6 @@ fn main() {
         .add_system(draw_agents)
         .add_system(move_agent)
         .add_system(draw_ants)
-        // .add_system(set_visibility)
         .run();
 
 }

@@ -1,17 +1,18 @@
 
 pub struct Config {
     pub dead_ants: usize,
-    pub max_iter: usize,
+    pub iterations: usize,
     pub ants: usize,
     pub radius: i32,
     pub border_size: f32,
     pub iter_per_mut: usize,
+    pub finished: bool,
 }
 
 impl Config {
     pub fn new(
         dead_ants: usize,
-        max_iter: usize,
+        iterations: usize,
         ants: usize,
         radius: i32,
         border_size: f32,
@@ -20,11 +21,12 @@ impl Config {
 
         Self {
             dead_ants,
-            max_iter,
+            iterations,
             ants,
             radius,
             border_size,
             iter_per_mut,
+            finished: false,
         }
     }
 }
