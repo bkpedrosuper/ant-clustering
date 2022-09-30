@@ -217,13 +217,14 @@ pub fn move_agent(
                 
             }
         }
+
+        config.iterations = if config.iterations == 0 { 0 } else { config.iterations - 1 }; // command to prevent config (usize to be lesser than zero)
     }
 
     if config.iterations == 0 {
         config.finished = true;
     }
 
-    config.iterations = if config.iterations == 0 { 0 } else { config.iterations - 1 }; // command to prevent config (usize to be lesser than zero)
     
     for (agent, mut transform) in query.iter_mut() {
         let x = agent.x as f32;
