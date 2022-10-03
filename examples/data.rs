@@ -25,7 +25,7 @@ fn main() {
 
     App::new()
         .insert_resource(WindowDescriptor {
-            title: "Ant-Clustering".to_string(),
+            title: "Ant-Clustering Data".to_string(),
             width: 900.,
             height: 900.,
             resizable: false,
