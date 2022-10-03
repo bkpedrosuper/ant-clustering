@@ -76,16 +76,6 @@ pub fn setup_ants(
     }
 }
 
-pub fn draw_ants(asset_server: Res<AssetServer>, mut query: Query<(&Ant, &mut Handle<Image>)>) {
-    for (ant, mut image_handle) in query.iter_mut() {
-        if ant.carrying {
-            *image_handle = asset_server.load("carry_ant.png");
-        } else {
-            *image_handle = asset_server.load("empty_ant.png");
-        }
-    }
-}
-
 fn get_score(
     board: &Res<Board>,
     ax: i32,

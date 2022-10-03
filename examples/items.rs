@@ -8,6 +8,7 @@ use ant_clustering::ant::{*};
 
 fn main() {
     let params: Config = Config::new(3000, 100000, 100, 5, 2., 1000);
+    // let params: Config = Config::new(1000, 10000, 100, 1, 2., 100);
     // let params: Config = Config::new(200, 10, 50, 3, 2., 10000);
     let board: Board = Board::new(100);
 
@@ -31,7 +32,6 @@ fn main() {
         .add_system(color_cells)
         .add_system(draw_agents)
         .add_system(move_agent)
-        .add_system(draw_ants)
         .run();
 
 }
