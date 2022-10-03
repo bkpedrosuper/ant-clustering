@@ -7,6 +7,12 @@ pub struct Config {
     pub border_size: f32,
     pub iter_per_mut: usize,
     pub finished: bool,
+    pub base: String,
+    
+    // data metrics
+    pub k1: f32,
+    pub k2: f32,
+    pub alpha: f32,
 }
 
 impl Config {
@@ -27,6 +33,11 @@ impl Config {
             border_size,
             iter_per_mut,
             finished: false,
+            base: "Square1-DataSet-400itens.txt".to_string(),
+
+            k1: 0.3,
+            k2: 0.3,
+            alpha: 20.
         }
     }
 }
