@@ -9,7 +9,7 @@ fn main() {
 
     let params: Config = Config {
         dead_ants: 1000,
-        iterations: 100,
+        iterations: 100000,
         ants: 100,
         radius: 1,
         border_size: 2.,

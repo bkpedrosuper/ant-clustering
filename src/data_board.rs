@@ -115,14 +115,12 @@ pub fn setup_dead_ants(board: Res<Board>, mut query: Query<&mut DataCell>, param
 fn get_color_from_label(food: Option<Food>) -> Color {
     match food {
         Some(food) => {
-            println!("label: {}", food.label);
             let x = food.label as f32;
 
             let r = 1. % x;
             let g = 1. -  1. * (x / 10.).min(1.) % 1.;
             let b = 1. * (x / 10.).min(1.);
 
-            println!("r: {}, g: {}, b: {}", r, g, b);
             Color::rgb(r, g, b)
         },
         None => Color::rgb(1.0, 1.0, 1.0),
