@@ -82,12 +82,14 @@ fn get_score(
     ay: i32,
     radius: i32,
     item: Food,
+    alpha: f32,
     query_cell: &Query<&mut DataCell>,
 ) -> f32 {
     let width = board.width as i32;
     let height = board.height as i32;
     let mut total_vision = 0;
     let mut similarity_sum: f32 = 0.0;
+    let mut occurrences: i32 = 0;
     for x in ax - radius..=ax + radius {
         for y in ay - radius..=ay + radius {
             if x >= 0 && x < width && (x != ax || y != ay) && y >= 0 && y < height
@@ -96,15 +98,30 @@ fn get_score(
                 let cell = query_cell.get(board.content[x as usize][y as usize]).unwrap();
                 match cell.food {
                     Some(food) => {
-                        similarity_sum += 1. / Food::dist(item, food)
+                        occurrences += 1;
+                        // similarity_sum += 1. - (Food::dist(item, food) / alpha);
+
+                        similarity_sum += 1. - (Food::dist(item, food) / alpha);
+                        println!("dist: {}", Food::dist(item, food));
+                        println!("dist sobre alpha: {}", Food::dist(item, food) / alpha);
                     },
                     None => {}
                 }
             }
         }
     }
-
-    similarity_sum as f32 / total_vision as f32
+    // if occurrences == 0 {
+    //     return 0.;
+    // }
+    // println!("total_vision: {}", total_vision);
+    let score = similarity_sum as f32 / occurrences as f32;
+    println!("score: {}", score);
+    if score > 0. {
+        return score;
+    } else {
+        return 0.;
+    }
+    
 }
 
 fn pick_function(agent: &mut Mut<Ant>, score: f32, board: &Res<Board>, query_cell: &mut Query<&mut DataCell>, config: &Config) {
@@ -164,7 +181,7 @@ pub fn move_agent(
                     match current_cell.food {
                         Some(_) => {}
                         None => {
-                            let score: f32 = get_score(&board, agent.x as i32, agent.y as i32, config.radius, food , &query_cell).try_into().unwrap();
+                            let score: f32 = get_score(&board, agent.x as i32, agent.y as i32, config.radius, food, config.alpha, &query_cell).try_into().unwrap();
 
                             drop_function(&mut agent, score, &board, &mut query_cell, &config)
                         }
@@ -174,7 +191,7 @@ pub fn move_agent(
                 None => {
                     match current_cell.food {
                         Some(cell_food) => {
-                            let score: f32 = get_score(&board, agent.x as i32, agent.y as i32, config.radius, cell_food , &query_cell).try_into().unwrap();
+                            let score: f32 = get_score(&board, agent.x as i32, agent.y as i32, config.radius, cell_food, config.alpha, &query_cell).try_into().unwrap();
                             
                             pick_function(&mut agent, score, &board, &mut query_cell, &config)
                         }

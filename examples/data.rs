@@ -9,16 +9,16 @@ fn main() {
 
     let params: Config = Config {
         dead_ants: 1000,
-        iterations: 100000,
-        ants: 100,
-        radius: 1,
+        iterations: 100005,
+        ants: 20,
+        radius: 3,
         border_size: 2.,
-        iter_per_mut: 25,
+        iter_per_mut: 50,
         finished: false,
         base: "Square1-DataSet-400itens.txt".to_string(),
         k1: 0.3,
         k2: 0.3,
-        alpha: 30.,
+        alpha: 29.,
     };
     // let params: Config = Config::new(200, 10, 50, 3, 2., 10000);
     let board: Board = Board::new(50);
