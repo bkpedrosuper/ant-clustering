@@ -1,5 +1,5 @@
 # ant-clustering
-Ant clustering problem in rust
+Ant clustering optimization problem in rust (with visuals).
 
 ## Build
 ```
